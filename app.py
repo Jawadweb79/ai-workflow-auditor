@@ -222,13 +222,18 @@ with st.sidebar:
         '<p class="sidebar-brand-person">Jawad Hussain</p>'
         '</div>', unsafe_allow_html=True)
 
-    st.markdown("**⚙️ Configuration**")
-    api_key = st.text_input("DeepSeek API Key",
-        value=os.getenv("DEEPSEEK_API_KEY",""), type="password",
-        help="Get your key at platform.deepseek.com")
-    if api_key:
-        os.environ["DEEPSEEK_API_KEY"] = api_key
+    # ── Load API key silently from Streamlit secrets (cloud) or .env (local) ──
+    _api_key = ""
+    try:
+        _api_key = st.secrets.get("DEEPSEEK_API_KEY", "")
+    except Exception:
+        pass
+    if not _api_key:
+        _api_key = os.getenv("DEEPSEEK_API_KEY", "")
+    if _api_key:
+        os.environ["DEEPSEEK_API_KEY"] = _api_key
 
+    st.markdown("**⚙️ Configuration**")
     hourly_rate = st.number_input("Your hourly rate (USD)",
         min_value=10, max_value=2000,
         value=int(DEFAULT_HOURLY_VALUE), step=5)
@@ -550,7 +555,7 @@ with t_results:
         if ai_content["success"]:
             st.success(f"✅ AI-powered analysis — model: `{ai_content['model']}`")
         else:
-            st.warning("⚠️ DeepSeek API unavailable — deterministic fallback used. Add your key in the sidebar.")
+            st.warning("⚠️ AI analysis unavailable — detailed deterministic report generated instead.")
 
         st.markdown('<div class="sec-header">📈 ROI AT A GLANCE</div>', unsafe_allow_html=True)
         for col, (val, lbl) in zip(st.columns(5), [
@@ -770,6 +775,4 @@ with t_contact:
     st.markdown(
         f'<div class="pg-footer">AI Workflow Auditor &nbsp;·&nbsp; Digital Solution &nbsp;·&nbsp; Jawad Hussain<br/>' +
         f'<a href="{LINKEDIN_URL}" target="_blank">LinkedIn</a> &nbsp;·&nbsp; ' +
-        f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> &nbsp;·&nbsp; ' +
-        'Islamabad, Pakistan</div>',
-        unsafe_allow_html=True)
+        f'<a href="mailto:{CONTACT_EMAIL}">
