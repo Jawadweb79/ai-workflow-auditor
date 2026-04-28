@@ -761,5 +761,19 @@ with t_contact:
                 '<div style="font-size:1.6rem;margin-bottom:8px;">📄</div>' +
                 '<b style="color:#854d0e;font-size:0.92rem;">Send a PDF Brief</b>' +
                 '<p style="color:#475569;font-size:0.8rem;margin:6px 0 0 0;line-height:1.5;">' +
-                'Have a detailed plan or project? Attach a PDF brief to your email. ' +
-   
+                'Jawad will review and respond with a personalised plan within 48 hours.</p></div>',
+                unsafe_allow_html=True)
+
+        st.markdown("<br/>", unsafe_allow_html=True)
+        st.info(
+            f"💡 **Ready to transform your workflow?** Run a free audit using the **Run Your Audit** tab above, "
+            f"then share the downloaded PDF report with Jawad at **{CONTACT_EMAIL}** or via LinkedIn DM. "
+            "You'll get a personalised response with a recommended action plan within 48 hours.")
+
+    st.divider()
+    st.markdown(
+        f'<div class="pg-footer">AI Workflow Auditor &nbsp;·&nbsp; Digital Solution &nbsp;·&nbsp; Jawad Hussain<br/>' +
+        f'<a href="{LINKEDIN_URL}" target="_blank">LinkedIn</a> &nbsp;·&nbsp; ' +
+        f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> &nbsp;·&nbsp; ' +
+        'Islamabad, Pakistan</div>',
+        unsafe_allow_html=True)
