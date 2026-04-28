@@ -129,6 +129,13 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
+/* ── Hide Streamlit toolbar, GitHub link, footer, menu ── */
+#MainMenu { visibility: hidden !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
+header[data-testid="stHeader"] { background: transparent !important; }
+footer { visibility: hidden !important; }
+
 .metric-card {
     background: linear-gradient(135deg,#f8fafc,#eff6ff);
     border: 1px solid #bfdbfe; border-radius: 14px;
@@ -201,7 +208,8 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 
 # ── Session state init ─────────────────────────────────────────────────────────
-for k, v in [("results", None), ("demo_requested", False), ("n_tasks", 3)]:
+for k, v in [("results", None), ("demo_requested", False), ("n_tasks", 3),
+             ("form_key", 0), ("audit_submitted", False)]:
     if k not in st.session_state:
         st.session_state[k] = v
 
@@ -342,13 +350,14 @@ with t_input:
         from Jawad Hussain (Digital Solution). Required to run the audit.</p>
     </div>""", unsafe_allow_html=True)
 
+    _fk = st.session_state["form_key"]
     ec1, ec2 = st.columns(2)
     with ec1:
         lead_name = st.text_input("Your Name *",
-            placeholder="e.g.  Sarah Ahmed (required)", key="lead_name")
+            placeholder="e.g.  Sarah Ahmed (required)", key=f"lead_name_{_fk}")
     with ec2:
         lead_email = st.text_input("Your Email Address *",
-            placeholder="e.g.  sarah@company.com (required)", key="lead_email")
+            placeholder="e.g.  sarah@company.com (required)", key=f"lead_email_{_fk}")
     if lead_email and "@" not in lead_email:
         st.warning("⚠️ Please enter a valid email address.")
 
@@ -392,13 +401,13 @@ with t_input:
                 f"Task {i+1} description *",
                 value=ex.get("task",""),
                 placeholder="e.g. Write weekly newsletter, Reply to DMs, Schedule posts",
-                key=f"tn_{i}",
+                key=f"tn_{i}_{_fk}",
             )
         with tc2:
             thours = st.number_input(
                 "Hrs/week", min_value=0.25, max_value=80.0,
                 value=float(ex.get("time_per_week_hours", 1.0)),
-                step=0.5, key=f"th_{i}",
+                step=0.5, key=f"th_{i}_{_fk}",
             )
         if tname.strip():
             task_rows.append({"task": tname.strip(), "time_per_week_hours": thours})
@@ -442,8 +451,9 @@ with t_input:
     # ── Submit logic ───────────────────────────────────────────────────────────
     if run_btn:
         # Validate required fields
-        lname_val  = st.session_state.get("lead_name","").strip()
-        lemail_val = st.session_state.get("lead_email","").strip()
+        _fk = st.session_state["form_key"]
+        lname_val  = st.session_state.get(f"lead_name_{_fk}","").strip()
+        lemail_val = st.session_state.get(f"lead_email_{_fk}","").strip()
         if not lname_val:
             st.error("⚠️ Please enter your name before running the audit.")
             st.stop()
@@ -514,8 +524,17 @@ with t_input:
             "analysis": analysis, "roi": roi,
             "ai_content": ai_content, "paths": paths, "md_content": md_content,
         }
-        st.success("✅ Audit complete! Click the **Audit Results** tab above to see your report.")
+        st.session_state["audit_submitted"] = True
+
+        st.success("✅ **Audit complete!** Your contact details have been saved successfully.")
+        st.info("👆 Click the **Audit Results** tab above to view your full report and download it.")
         st.balloons()
+
+        if st.button("🔄 Start a New Audit", use_container_width=True):
+            st.session_state["form_key"] += 1
+            st.session_state["n_tasks"] = 3
+            st.session_state["audit_submitted"] = False
+            st.rerun()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -743,19 +762,4 @@ with t_contact:
                 '<b style="color:#854d0e;font-size:0.92rem;">Send a PDF Brief</b>' +
                 '<p style="color:#475569;font-size:0.8rem;margin:6px 0 0 0;line-height:1.5;">' +
                 'Have a detailed plan or project? Attach a PDF brief to your email. ' +
-                'Jawad will review and respond with a personalised plan within 48 hours.</p></div>',
-                unsafe_allow_html=True)
-
-        st.markdown("<br/>", unsafe_allow_html=True)
-        st.info(
-            f"💡 **Ready to transform your workflow?** Run a free audit using the **Run Your Audit** tab above, "
-            f"then share the downloaded PDF report with Jawad at **{CONTACT_EMAIL}** or via LinkedIn DM. "
-            "You'll get a personalised response with a recommended action plan within 48 hours.")
-
-    st.divider()
-    st.markdown(
-        f'<div class="pg-footer">AI Workflow Auditor &nbsp;·&nbsp; Digital Solution &nbsp;·&nbsp; Jawad Hussain<br/>' +
-        f'<a href="{LINKEDIN_URL}" target="_blank">LinkedIn</a> &nbsp;·&nbsp; ' +
-        f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> &nbsp;·&nbsp; ' +
-        'Islamabad, Pakistan</div>',
-        unsafe_allow_html=True)
+   
