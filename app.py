@@ -775,4 +775,6 @@ with t_contact:
     st.markdown(
         f'<div class="pg-footer">AI Workflow Auditor &nbsp;·&nbsp; Digital Solution &nbsp;·&nbsp; Jawad Hussain<br/>' +
         f'<a href="{LINKEDIN_URL}" target="_blank">LinkedIn</a> &nbsp;·&nbsp; ' +
-        f'<a href="mailto:{CONTACT_EMAIL}">
+        f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> &nbsp;·&nbsp; ' +
+        'Islamabad, Pakistan</div>',
+        unsafe_allow_html=True)
