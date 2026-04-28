@@ -120,7 +120,7 @@ st.set_page_config(
     page_title="AI Workflow Auditor | Digital Solution",
     page_icon="🔍",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ── CSS ────────────────────────────────────────────────────────────────────────
@@ -233,24 +233,10 @@ with st.sidebar:
     if _api_key:
         os.environ["DEEPSEEK_API_KEY"] = _api_key
 
-    st.markdown("**⚙️ Configuration**")
-    hourly_rate = st.number_input("Your hourly rate (USD)",
-        min_value=10, max_value=2000,
-        value=int(DEFAULT_HOURLY_VALUE), step=5)
-
-    st.divider()
     if st.button("📋 Load Demo Data", use_container_width=True):
         st.session_state["demo_requested"] = True
         st.session_state["n_tasks"] = 4
         st.rerun()
-
-    st.divider()
-    if sheets_configured():
-        st.success("🟢 Google Sheets connected")
-    elif os.path.exists(LEADS_CSV):
-        st.info(f"📄 Saving leads to leads.csv")
-    else:
-        st.caption("📄 Leads saved locally to leads.csv\n🔗 See SETUP.md for Google Sheets.")
 
     st.markdown('<div class="pg-footer">AI Workflow Auditor v1.0<br/>by Digital Solution</div>',
                 unsafe_allow_html=True)
@@ -495,7 +481,7 @@ with t_input:
         analysis = process_workflow(wf)
 
         prog.progress(38, text="📐 Calculating ROI…")
-        roi = run_roi_engine(analysis, hourly_value=float(hourly_rate))
+        roi = run_roi_engine(analysis, hourly_value=float(DEFAULT_HOURLY_VALUE))
 
         prog.progress(60, text="🤖 Running DeepSeek AI analysis…")
         ai_content = get_ai_analysis(analysis, roi)
@@ -508,24 +494,19 @@ with t_input:
         lname  = lname_val
         lemail = lemail_val
         prog.progress(92, text="💾 Saving your contact details…")
-        # Always save to CSV
-        save_lead_csv(lname, lemail, wf.get("role",""), wf.get("industry",""),
-                      roi["time_saved_per_week"], roi["efficiency_gain_percent"],
-                      roi["automation_score"])
-        # Also try Google Sheets
-        if sheets_configured():
-            ok, msg = save_lead(name=lname, email=lemail,
-                role=wf.get("role",""), industry=wf.get("industry",""),
-                total_hours=roi["total_hours_per_week"],
-                time_saved=roi["time_saved_per_week"],
-                efficiency=roi["efficiency_gain_percent"],
-                auto_score=roi["automation_score"])
-            if ok:
-                st.success("✅ Contact saved to Google Sheets!")
-            else:
-                st.warning(f"⚠️ Sheets error: {msg} — saved to leads.csv instead")
-        else:
-            st.info("📄 Contact saved to leads.csv (Google Sheets not configured)")
+        # Try Google Sheets first; silently fall back to CSV if not configured
+        sheets_ok, sheets_msg = save_lead(
+            name=lname, email=lemail,
+            role=wf.get("role",""), industry=wf.get("industry",""),
+            total_hours=roi["total_hours_per_week"],
+            time_saved=roi["time_saved_per_week"],
+            efficiency=roi["efficiency_gain_percent"],
+            auto_score=roi["automation_score"])
+        if not sheets_ok:
+            # Fallback: save locally — no message shown to user
+            save_lead_csv(lname, lemail, wf.get("role",""), wf.get("industry",""),
+                          roi["time_saved_per_week"], roi["efficiency_gain_percent"],
+                          roi["automation_score"])
 
         prog.progress(100, text="✅ Audit complete!")
 
@@ -778,3 +759,4 @@ with t_contact:
         f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a> &nbsp;·&nbsp; ' +
         'Islamabad, Pakistan</div>',
         unsafe_allow_html=True)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
