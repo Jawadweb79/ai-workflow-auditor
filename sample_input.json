@@ -1,0 +1,12 @@
+{
+  "role": "LinkedIn Creator",
+  "industry": "Personal Branding",
+  "tasks": [
+    {"task": "Write posts manually",  "time_per_week_hours": 10},
+    {"task": "Design content",        "time_per_week_hours": 5},
+    {"task": "Schedule posts",        "time_per_week_hours": 3},
+    {"task": "Reply to comments",     "time_per_week_hours": 4}
+  ],
+  "tools_used": ["ChatGPT", "Canva"],
+  "pain_points": ["time consuming", "no system"]
+}

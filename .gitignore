@@ -1,0 +1,20 @@
+# Sensitive credentials — NEVER upload these
+credentials.json
+.env
+leads.csv
+
+# Streamlit secrets (managed via Streamlit Cloud dashboard)
+.streamlit/secrets.toml
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Reports generated at runtime
+reports/
+
+# OS files
+.DS_Store
+Thumbs.db
